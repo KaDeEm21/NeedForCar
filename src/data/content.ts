@@ -1,9 +1,8 @@
-import heroReference from '../../assets/unnamed.png';
-import silverCoupeReference from '../../assets/unnamed (1).png';
-import heroFrontReference from '../../assets/unnamed (2).png';
-import darkSedanReference from '../../assets/unnamed (3).png';
-import nightSuvReference from '../../assets/unnamed (4).png';
-import silverGtReference from '../../assets/unnamed (5).png';
+import aventadorHero from '../../assets/Aventador.png';
+import chatgptImage004235 from '../../assets/ChatGPT Image 3 kwi 2026, 00_42_35.png';
+import chatgptImage004636 from '../../assets/ChatGPT Image 3 kwi 2026, 00_46_36.png';
+import chatgptImage004829 from '../../assets/ChatGPT Image 3 kwi 2026, 00_48_29.png';
+import chatgptImage005458 from '../../assets/ChatGPT Image 3 kwi 2026, 00_54_58.png';
 import type { Benefit, BookingRecord, BookingStep, Car, FaqItem, ProtectionPlan } from '../types';
 
 export const navLinks = [
@@ -14,7 +13,7 @@ export const navLinks = [
 
 export const heroArtwork = {
   title: 'Main hero background',
-  imageSrc: heroReference,
+  imageSrc: aventadorHero,
   imagePrompt:
     'Cinematic high-performance sports car parked on a wet city street at night, front three-quarter view, teal and magenta neon reflections, luxury rental campaign, ultra realistic, dramatic haze, glossy black road, premium editorial lighting, no text, no logos, wide composition',
   imageLabel: 'AI hero background placeholder'
@@ -29,7 +28,7 @@ export const fleet: Car[] = [
     accent: 'magenta',
     tagline: 'Superveloce Performance Tier',
     description: 'Carbon-heavy theatre with brutal acceleration and a night-run silhouette.',
-    imageSrc: silverCoupeReference,
+    imageSrc: chatgptImage004235,
     imagePrompt:
       'Silver luxury sports coupe parked in a dim city alley at dusk, premium car rental editorial shot, realistic reflections, moody cyan-magenta accents, wide crop, no people, no text',
     imageLabel: 'Silver luxury sports coupe mockup',
@@ -44,7 +43,7 @@ export const fleet: Car[] = [
     accent: 'cyan',
     tagline: 'Street Command Package',
     description: 'Four-door aggression for airport runs, city transfers and fast exits.',
-    imageSrc: nightSuvReference,
+    imageSrc: chatgptImage004829,
     imagePrompt:
       'Black high-end performance SUV on an urban street at night, headlights on, cinematic reflections, premium automotive campaign, realistic, no people, no text',
     imageLabel: 'Black performance SUV mockup',
@@ -59,7 +58,7 @@ export const fleet: Car[] = [
     accent: 'cyan',
     tagline: 'Executive Comfort Spec',
     description: 'Low-drama luxury with a silent cabin and premium chauffeur-grade presence.',
-    imageSrc: darkSedanReference,
+    imageSrc: chatgptImage004636,
     imagePrompt:
       'Dark charcoal luxury sedan photographed in a refined night city setting, understated premium mood, realistic reflections, editorial automotive ad, no people, no text',
     imageLabel: 'Dark charcoal luxury sedan mockup',
@@ -69,12 +68,12 @@ export const fleet: Car[] = [
 ];
 
 export const styleReferences = [
-  { id: 'hero-background', label: 'Hero background', imageSrc: heroReference },
-  { id: 'hero-front', label: 'Front neon coupe', imageSrc: heroFrontReference },
-  { id: 'silver-coupe', label: 'Silver coupe', imageSrc: silverCoupeReference },
-  { id: 'black-suv', label: 'Black SUV', imageSrc: nightSuvReference },
-  { id: 'dark-sedan', label: 'Dark sedan', imageSrc: darkSedanReference },
-  { id: 'silver-gt', label: 'Silver GT', imageSrc: silverGtReference }
+  { id: 'hero-background', label: 'Hero background', imageSrc: chatgptImage004235 },
+  { id: 'night-coupe-01', label: 'Night coupe 01', imageSrc: chatgptImage004235 },
+  { id: 'night-coupe-02', label: 'Night coupe 02', imageSrc: chatgptImage004235 },
+  { id: 'day-coupe', label: 'Day coupe', imageSrc: chatgptImage004636 },
+  { id: 'night-coupe-03', label: 'Night coupe 03', imageSrc: chatgptImage004829 },
+  { id: 'beach-coupe', label: 'Beach coupe', imageSrc: chatgptImage005458 }
 ];
 
 export const benefits: Benefit[] = [
