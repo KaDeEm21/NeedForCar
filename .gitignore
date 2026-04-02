@@ -1,0 +1,9 @@
+.context/
+.env
+.env.local
+.env.*.local
+node_modules/
+dist/
+backend/inquiries.json
+tsconfig.app.tsbuildinfo
+assets/generated/
