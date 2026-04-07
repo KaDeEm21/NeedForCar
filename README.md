@@ -59,3 +59,6 @@ npm run build
 ## Notes
 
 - The current UI uses the local reference images from `assets/` as temporary artwork so the layout stays close to the desired visual style.
+- Mock account login for the history modal:
+  - `admin@gmail.com`
+  - `admin123`

@@ -11,8 +11,8 @@ import porscheGt2Image from '../assets/Porshe GT2.png';
 import porscheGt3RsImage from '../assets/Porshe GT3 RS.png';
 import { benefits, bookingSteps, faq as fallbackFaq, fleet as fallbackFleet, heroArtwork, navLinks, protectionPlans } from './data/content';
 import { useModal } from './hooks/useModal';
-import { fetchFaq, fetchFleet, submitInquiry } from './lib/api';
-import type { Car, FaqItem, InquiryPayload } from './types';
+import { fetchFaq, fetchFleet, fetchRecentBookings, submitInquiry } from './lib/api';
+import type { BookingRecord, Car, FaqItem, InquiryPayload } from './types';
 
 interface InquiryFormState {
   fullName: string;
@@ -25,6 +25,15 @@ interface InquiryFormState {
   planId: string;
 }
 
+interface MemberSession {
+  name: string;
+  email: string;
+  password: string;
+  tier: string;
+  memberSince: string;
+  initials: string;
+}
+
 const initialForm: InquiryFormState = {
   fullName: '',
   email: '',
@@ -35,6 +44,41 @@ const initialForm: InquiryFormState = {
   carId: fallbackFleet[0].id,
   planId: protectionPlans[1].id
 };
+
+const mockMembers: MemberSession[] = [
+  {
+    name: 'Admin Driver',
+    email: 'admin@gmail.com',
+    password: 'admin123',
+    tier: 'Priority Member',
+    memberSince: 'Since 2024',
+    initials: 'AD'
+  }
+];
+
+const fallbackRecentBookings: BookingRecord[] = [
+  {
+    id: 'booking-1',
+    vehicle: 'Lamborghini Huracan',
+    status: 'Completed',
+    duration: 'Jun 18 — Jun 19, 2023',
+    total: '$1,900.00'
+  },
+  {
+    id: 'booking-2',
+    vehicle: 'McLaren 720S',
+    status: 'Priority Member',
+    duration: 'Oct 24 — Oct 27, 2024',
+    total: '$3,058.26'
+  },
+  {
+    id: 'booking-3',
+    vehicle: 'Ferrari SF90',
+    status: 'Upcoming',
+    duration: 'Apr 18 — Apr 21, 2026',
+    total: '$4,920.00'
+  }
+];
 
 const lineupShowcaseCars: Car[] = [
   {
@@ -269,15 +313,21 @@ function TopNav({
   activeHref,
   activeModal,
   onNavClick,
-  onOpenModal
+  isSignedIn,
+  memberInitials,
+  onOpenModal,
+  onHistoryClick
 }: {
   activeHref: string;
   activeModal: string | null;
   onNavClick: (href: string, event: React.MouseEvent<HTMLAnchorElement>) => void;
+  isSignedIn: boolean;
+  memberInitials?: string;
   onOpenModal: (modalId: string) => void;
+  onHistoryClick: () => void;
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const navIsOverlayed = activeModal === 'sign-in' || activeModal === 'sign-up';
+  const navIsOverlayed = activeModal === 'sign-in' || activeModal === 'account';
 
   return (
     <header className="site-header">
@@ -313,12 +363,25 @@ function TopNav({
         </div>
 
         <div className="nav-actions">
-          <button type="button" className="ghost-button" onClick={() => onOpenModal('sign-in')}>
-            Sign In
-          </button>
-          <button type="button" className="primary-button small" onClick={() => onOpenModal('sign-up')}>
-            Sign Up
-          </button>
+          {isSignedIn ? (
+            <>
+              <button type="button" className="ghost-button" onClick={() => onOpenModal('account')} aria-label="Open account">
+                {memberInitials ?? 'AC'}
+              </button>
+              <button type="button" className="primary-button small" onClick={onHistoryClick}>
+                History
+              </button>
+            </>
+          ) : (
+            <>
+              <button type="button" className="ghost-button" onClick={() => onOpenModal('sign-in')}>
+                Sign In
+              </button>
+              <button type="button" className="primary-button small" onClick={() => onOpenModal('sign-up')}>
+                Sign Up
+              </button>
+            </>
+          )}
         </div>
       </nav>
     </header>
@@ -754,23 +817,27 @@ function BookingOverlay({
   );
 }
 
-function AuthModalContent({ mode }: { mode: 'sign-in' | 'sign-up' }) {
-  const isSignIn = mode === 'sign-in';
-
+function SignInModalContent({
+  authForm,
+  authError,
+  onFieldChange,
+  onSubmit
+}: {
+  authForm: { email: string; password: string };
+  authError: string | null;
+  onFieldChange: (field: 'email' | 'password', value: string) => void;
+  onSubmit: () => void;
+}) {
   return (
     <div className="auth-layout">
       <div className="auth-visual">
-        <div className="auth-kicker">{isSignIn ? 'MEMBER ACCESS' : 'PRIORITY ACCESS'}</div>
+        <div className="auth-kicker">MEMBER ACCESS</div>
         <div className="auth-display">
-          <span>{isSignIn ? 'WELCOME' : 'JOIN THE'}</span>
-          <strong>{isSignIn ? 'BACK' : 'VELOCITY'}</strong>
-          <span>{isSignIn ? 'DRIVER' : 'CIRCLE'}</span>
+          <span>WELCOME</span>
+          <strong>BACK</strong>
+          <span>DRIVER</span>
         </div>
-        <p className="auth-copy">
-          {isSignIn
-            ? 'Ignite your journey with precision engineering and pick up where your last reservation left off.'
-            : 'Create your account to unlock priority availability, faster checkout and curated member-only bookings.'}
-        </p>
+        <p className="auth-copy">Ignite your journey with precision engineering and pick up where your last reservation left off.</p>
         <div className="auth-proof">
           <div className="auth-proof-avatars" aria-hidden="true">
             <span className="auth-avatar auth-avatar-one">JS</span>
@@ -782,58 +849,177 @@ function AuthModalContent({ mode }: { mode: 'sign-in' | 'sign-up' }) {
       </div>
 
       <div className="auth-panel">
-        <p className="eyebrow">{isSignIn ? 'Secure Access' : 'Priority Access'}</p>
-        <h2>{isSignIn ? 'Welcome Back' : 'Create Account'}</h2>
-        <p className="auth-panel-copy">
-          {isSignIn
-            ? 'Enter your account details to continue your midnight booking flow.'
-            : 'Create your digital cockpit to start booking.'}
-        </p>
+        <p className="eyebrow">Secure Access</p>
+        <h2>Welcome Back</h2>
+        <p className="auth-panel-copy">Enter your account details to continue your midnight booking flow.</p>
 
-        {isSignIn ? (
-          <div className="modal-form auth-form auth-form-signin">
-            <label className="field-group">
-              <span>Email Address</span>
-              <input type="email" placeholder="driver@needforcar.com" />
-            </label>
+        <div className="modal-form auth-form auth-form-signin">
+          <label className="field-group">
+            <span>Email Address</span>
+            <input type="email" placeholder="admin@gmail.com" value={authForm.email} onChange={(event) => onFieldChange('email', event.target.value)} />
+          </label>
+          <label className="field-group">
+            <span>Password</span>
+            <input type="password" placeholder="admin123" value={authForm.password} onChange={(event) => onFieldChange('password', event.target.value)} />
+          </label>
+          <button type="button" className="primary-button wide" onClick={onSubmit}>
+            Enter Garage
+          </button>
+          {authError ? <p className="form-feedback error auth-feedback">{authError}</p> : null}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SignUpModalContent() {
+  return (
+    <div className="auth-layout">
+      <div className="auth-visual">
+        <div className="auth-kicker">PRIORITY ACCESS</div>
+        <div className="auth-display">
+          <span>JOIN THE</span>
+          <strong>VELOCITY</strong>
+          <span>CIRCLE</span>
+        </div>
+        <p className="auth-copy">Create your account to unlock priority availability, faster checkout and curated member-only bookings.</p>
+        <div className="auth-proof">
+          <div className="auth-proof-avatars" aria-hidden="true">
+            <span className="auth-avatar auth-avatar-one">JS</span>
+            <span className="auth-avatar auth-avatar-two">AM</span>
+            <span className="auth-avatar auth-avatar-three">RK</span>
+          </div>
+          <p>Trusted by members who rent premium performance cars across the city.</p>
+        </div>
+      </div>
+
+      <div className="auth-panel">
+        <p className="eyebrow">Priority Access</p>
+        <h2>Create Account</h2>
+        <p className="auth-panel-copy">Create your digital cockpit to start booking.</p>
+
+        <div className="modal-form auth-form auth-form-signup">
+          <label className="field-group">
+            <span>Full Name</span>
+            <input placeholder="John Wick" />
+          </label>
+          <label className="field-group">
+            <span>Email Address</span>
+            <input type="email" placeholder="velocity@needforcar.com" />
+          </label>
+          <div className="auth-password-row">
             <label className="field-group">
               <span>Password</span>
               <input type="password" placeholder="••••••••" />
             </label>
-            <button type="button" className="primary-button wide">
-              Enter Garage
-            </button>
+            <label className="field-group">
+              <span>Confirm</span>
+              <input type="password" placeholder="••••••••" />
+            </label>
           </div>
-        ) : (
-          <div className="modal-form auth-form auth-form-signup">
-            <label className="field-group">
-              <span>Full Name</span>
-              <input placeholder="John Wick" />
-            </label>
-            <label className="field-group">
-              <span>Email Address</span>
-              <input type="email" placeholder="velocity@needforcar.com" />
-            </label>
-            <div className="auth-password-row">
-              <label className="field-group">
-                <span>Password</span>
-                <input type="password" placeholder="••••••••" />
-              </label>
-              <label className="field-group">
-                <span>Confirm</span>
-                <input type="password" placeholder="••••••••" />
-              </label>
+          <label className="auth-agreement">
+            <input type="checkbox" />
+            <span>I agree to the Terms of Service and Privacy Policy.</span>
+          </label>
+          <button type="button" className="primary-button wide">
+            Start Membership
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AccountHistoryContent({
+  member: _member,
+  bookings,
+  onSignOut
+}: {
+  member: MemberSession;
+  bookings: BookingRecord[];
+  onSignOut: () => void;
+}) {
+  const bookingHistoryItems = [
+    {
+      booking: bookings[2] ?? fallbackRecentBookings[2],
+      imageSrc: porscheGt3RsImage,
+      vehicleLabel: 'Porsche 911 GT3',
+      statusLabel: 'Completed',
+      durationLabel: 'Oct 12 — Oct 15, 2023',
+      daysLabel: '3 Days Total',
+      totalLabel: '$2,450.00'
+    },
+    {
+      booking: bookings[1] ?? fallbackRecentBookings[1],
+      imageSrc: bmwM4Image,
+      vehicleLabel: 'Audi R8 Coupe',
+      statusLabel: 'Completed',
+      durationLabel: 'Aug 05 — Aug 07, 2023',
+      daysLabel: '2 Days Total',
+      totalLabel: '$1,180.00'
+    },
+    {
+      booking: bookings[0] ?? fallbackRecentBookings[0],
+      imageSrc: lamborghiniAventadorImage,
+      vehicleLabel: 'Lamborghini Huracan',
+      statusLabel: 'Completed',
+      durationLabel: 'Jun 18 — Jun 19, 2023',
+      daysLabel: '1 Day Total',
+      totalLabel: '$1,900.00'
+    }
+  ];
+
+  return (
+    <div className="history-layout">
+      <div className="history-header">
+        <div>
+          <h2>
+            Booking <span>History</span>
+          </h2>
+          <p>Review your past high-performance journeys and manage your receipts.</p>
+        </div>
+        <button type="button" className="ghost-button" onClick={onSignOut}>
+          Logout
+        </button>
+      </div>
+
+      <div className="history-list">
+        {bookingHistoryItems.map((item) => (
+          <article key={item.booking.id} className="history-item-card">
+            <div className="history-item-image">
+              <img className="car-reference-image" src={item.imageSrc} alt={`${item.vehicleLabel} history entry.`} />
             </div>
-            <label className="auth-agreement">
-              <input type="checkbox" />
-              <span>I agree to the Terms of Service and Privacy Policy.</span>
-            </label>
-            <button type="button" className="primary-button wide">
-              Start Membership
-            </button>
-            <p className="auth-footer-note">Already have an account? Sign in.</p>
-          </div>
-        )}
+
+            <div className="history-item-details">
+              <div className="history-item-column">
+                <span>Vehicle</span>
+                <strong>{item.vehicleLabel}</strong>
+                <p>{item.statusLabel}</p>
+              </div>
+
+              <div className="history-item-column">
+                <span>Duration</span>
+                <strong>{item.durationLabel}</strong>
+                <p>{item.daysLabel}</p>
+              </div>
+
+              <div className="history-item-column">
+                <span>Investment</span>
+                <strong>{item.totalLabel}</strong>
+              </div>
+            </div>
+
+            <div className="history-item-actions">
+              <button type="button" className="history-receipt-button">
+                Receipt
+              </button>
+              <button type="button" className="history-book-again-button">
+                <span>Book</span>
+                <span>Again</span>
+              </button>
+            </div>
+          </article>
+        ))}
       </div>
     </div>
   );
@@ -877,7 +1063,11 @@ export default function App() {
   const { activeModal, openModal, closeModal } = useModal();
   const [cars, setCars] = useState<Car[]>(fallbackFleet);
   const [faqItems, setFaqItems] = useState<FaqItem[]>(fallbackFaq);
+  const [recentBookings, setRecentBookings] = useState<BookingRecord[]>(fallbackRecentBookings);
   const [form, setForm] = useState<InquiryFormState>(initialForm);
+  const [memberSession, setMemberSession] = useState<MemberSession | null>(null);
+  const [authForm, setAuthForm] = useState({ email: '', password: '' });
+  const [authError, setAuthError] = useState<string | null>(null);
   const [activeHref, setActiveHref] = useState(navLinks[0].href);
   const pendingNavHrefRef = useRef<string | null>(null);
   const navLockUntilRef = useRef(0);
@@ -890,6 +1080,7 @@ export default function App() {
   useEffect(() => {
     void fetchFleet().then(setCars).catch(() => setCars(fallbackFleet));
     void fetchFaq().then(setFaqItems).catch(() => setFaqItems(fallbackFaq));
+    void fetchRecentBookings().then(setRecentBookings).catch(() => setRecentBookings(fallbackRecentBookings));
   }, []);
 
   useEffect(() => {
@@ -976,6 +1167,51 @@ export default function App() {
     });
   }
 
+  function handleAuthFieldChange(field: 'email' | 'password', value: string) {
+    setAuthForm((current) => ({
+      ...current,
+      [field]: value
+    }));
+    setAuthError(null);
+  }
+
+  function handleSignIn() {
+    const email = authForm.email.trim();
+    const password = authForm.password.trim();
+
+    if (!email || !password) {
+      setAuthError('Enter the mock account email and password to open the account view.');
+      return;
+    }
+
+    const session = mockMembers.find((entry) => entry.email.toLowerCase() === email.toLowerCase() && entry.password === password);
+
+    if (!session) {
+      setAuthError('Use the mock account: admin@gmail.com / admin123.');
+      return;
+    }
+
+    setMemberSession(session);
+    setAuthError(null);
+    openModal('account');
+  }
+
+  function handleHistoryOpen() {
+    if (memberSession) {
+      openModal('account');
+      return;
+    }
+
+    setAuthError('Sign in with a demo account first to unlock booking history.');
+    openModal('sign-in');
+  }
+
+  function handleSignOut() {
+    setMemberSession(null);
+    setAuthForm({ email: '', password: '' });
+    closeModal();
+  }
+
   function handleFieldChange(field: keyof InquiryFormState, value: string) {
     setForm((current) => ({
       ...current,
@@ -1027,7 +1263,15 @@ export default function App() {
 
   return (
     <>
-      <TopNav activeHref={activeHref} activeModal={activeModal} onNavClick={handleNavClick} onOpenModal={openModal} />
+      <TopNav
+        activeHref={activeHref}
+        activeModal={activeModal}
+        onNavClick={handleNavClick}
+        isSignedIn={memberSession !== null}
+        memberInitials={memberSession?.initials}
+        onOpenModal={openModal}
+        onHistoryClick={handleHistoryOpen}
+      />
       <main>
         <HeroSection cars={cars} form={form} onFieldChange={handleFieldChange} onPrimaryAction={() => openModal('booking')} />
         <FleetSection cars={cars} onPrimaryAction={() => openModal('booking')} />
@@ -1038,11 +1282,19 @@ export default function App() {
       <SiteFooter />
 
       <Modal modalId="sign-in" activeModal={activeModal} title="Member Sign In" closeModal={closeModal} size="auth">
-        <AuthModalContent mode="sign-in" />
+        <SignInModalContent authForm={authForm} authError={authError} onFieldChange={handleAuthFieldChange} onSubmit={handleSignIn} />
       </Modal>
 
       <Modal modalId="sign-up" activeModal={activeModal} title="Create Account" closeModal={closeModal} size="auth">
-        <AuthModalContent mode="sign-up" />
+        <SignUpModalContent />
+      </Modal>
+
+      <Modal modalId="account" activeModal={activeModal} title="Member Account" closeModal={closeModal} size="auth">
+        {memberSession ? (
+          <AccountHistoryContent member={memberSession} bookings={recentBookings} onSignOut={handleSignOut} />
+        ) : (
+          <SignInModalContent authForm={authForm} authError={authError} onFieldChange={handleAuthFieldChange} onSubmit={handleSignIn} />
+        )}
       </Modal>
 
       <Modal modalId="booking" activeModal={activeModal} title="Booking Flow" closeModal={closeModal} size="booking">
