@@ -1,8 +1,8 @@
-import aventadorHero from '../../assets/Aventador.png';
-import chatgptImage004235 from '../../assets/ChatGPT Image 3 kwi 2026, 00_42_35.png';
-import chatgptImage004636 from '../../assets/ChatGPT Image 3 kwi 2026, 00_46_36.png';
-import chatgptImage004829 from '../../assets/ChatGPT Image 3 kwi 2026, 00_48_29.png';
-import chatgptImage005458 from '../../assets/ChatGPT Image 3 kwi 2026, 00_54_58.png';
+import aventadorHero from '../../assets/Lamborghini Aventador.png';
+import ferrariSf90Image from '../../assets/Ferrari SF90.png';
+import maybachImage from '../../assets/Maybach.png';
+import bmwX5mImage from '../../assets/BMW X5M.png';
+import porscheGt2Image from '../../assets/Porshe GT2.png';
 import type { Benefit, BookingRecord, BookingStep, Car, FaqItem, ProtectionPlan } from '../types';
 
 export const navLinks = [
@@ -28,7 +28,7 @@ export const fleet: Car[] = [
     accent: 'magenta',
     tagline: 'Superveloce Performance Tier',
     description: 'Carbon-heavy theatre with brutal acceleration and a night-run silhouette.',
-    imageSrc: chatgptImage004235,
+    imageSrc: ferrariSf90Image,
     imagePrompt:
       'Silver luxury sports coupe parked in a dim city alley at dusk, premium car rental editorial shot, realistic reflections, moody cyan-magenta accents, wide crop, no people, no text',
     imageLabel: 'Silver luxury sports coupe mockup',
@@ -43,7 +43,7 @@ export const fleet: Car[] = [
     accent: 'cyan',
     tagline: 'Street Command Package',
     description: 'Four-door aggression for airport runs, city transfers and fast exits.',
-    imageSrc: chatgptImage004829,
+    imageSrc: bmwX5mImage,
     imagePrompt:
       'Black high-end performance SUV on an urban street at night, headlights on, cinematic reflections, premium automotive campaign, realistic, no people, no text',
     imageLabel: 'Black performance SUV mockup',
@@ -58,7 +58,7 @@ export const fleet: Car[] = [
     accent: 'cyan',
     tagline: 'Executive Comfort Spec',
     description: 'Low-drama luxury with a silent cabin and premium chauffeur-grade presence.',
-    imageSrc: chatgptImage004636,
+    imageSrc: maybachImage,
     imagePrompt:
       'Dark charcoal luxury sedan photographed in a refined night city setting, understated premium mood, realistic reflections, editorial automotive ad, no people, no text',
     imageLabel: 'Dark charcoal luxury sedan mockup',
@@ -68,31 +68,31 @@ export const fleet: Car[] = [
 ];
 
 export const styleReferences = [
-  { id: 'hero-background', label: 'Hero background', imageSrc: chatgptImage004235 },
-  { id: 'night-coupe-01', label: 'Night coupe 01', imageSrc: chatgptImage004235 },
-  { id: 'night-coupe-02', label: 'Night coupe 02', imageSrc: chatgptImage004235 },
-  { id: 'day-coupe', label: 'Day coupe', imageSrc: chatgptImage004636 },
-  { id: 'night-coupe-03', label: 'Night coupe 03', imageSrc: chatgptImage004829 },
-  { id: 'beach-coupe', label: 'Beach coupe', imageSrc: chatgptImage005458 }
+  { id: 'hero-background', label: 'Hero background', imageSrc: aventadorHero },
+  { id: 'night-coupe-01', label: 'Night coupe 01', imageSrc: ferrariSf90Image },
+  { id: 'night-coupe-02', label: 'Night coupe 02', imageSrc: porscheGt2Image },
+  { id: 'day-coupe', label: 'Day coupe', imageSrc: maybachImage },
+  { id: 'night-coupe-03', label: 'Night coupe 03', imageSrc: bmwX5mImage },
+  { id: 'beach-coupe', label: 'Beach coupe', imageSrc: porscheGt2Image }
 ];
 
 export const benefits: Benefit[] = [
   {
     id: 'pricing',
     title: 'Transparent Pricing',
-    description: 'No hidden fees, all-inclusive rates and full insurance visibility before checkout.',
+    description: 'No hidden fees, all-inclusive rates. What you see at checkout is exactly what you pay. Full insurance included.',
     accent: 'cyan'
   },
   {
     id: 'fleet',
     title: 'Premium Fleet',
-    description: 'A tightly curated set of recent high-spec vehicles maintained for reliable handovers.',
+    description: 'Only the latest, high-spec models. Every vehicle in our fleet is under 12 months old and meticulously maintained.',
     accent: 'magenta'
   },
   {
     id: 'reservation',
     title: 'Fast Reservation',
-    description: 'A search-first booking flow designed to move from idea to confirmation in minutes.',
+    description: 'Book in under 2 minutes with our streamlined digital cockpit. Minimal paperwork, maximum driving time.',
     accent: 'cyan'
   }
 ];
@@ -109,14 +109,14 @@ export const bookingSteps: BookingStep[] = [
     id: 'step-2',
     step: '02',
     title: 'Verify Your Details',
-    description: 'Submit your contact details and driving credentials in a controlled digital flow.',
+    description: 'Quick biometric verification and license check. Secure, encrypted, and fast.',
     accent: 'magenta'
   },
   {
     id: 'step-3',
     step: '03',
     title: 'Drive The Night',
-    description: 'Receive confirmation, pickup details and premium support for the full reservation window.',
+    description: 'Keyless pickup from your selected location. The road is yours to conquer.',
     accent: 'cyan'
   }
 ];
