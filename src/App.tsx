@@ -257,6 +257,20 @@ function calculateDays(startDate: string, endDate: string) {
   return Math.ceil(milliseconds / (1000 * 60 * 60 * 24));
 }
 
+function getBookingCars(remoteCars: Car[]) {
+  const carsById = new Map<string, Car>();
+
+  for (const car of [...lineupShowcaseCars, ...remoteCars, ...fallbackFleet]) {
+    if (!car.imageSrc || !car.imageStyle || !car.tagline || carsById.has(car.id)) {
+      continue;
+    }
+
+    carsById.set(car.id, car);
+  }
+
+  return Array.from(carsById.values());
+}
+
 function LinedHeading({ children }: { children: React.ReactNode }) {
   return (
     <div className="lined-heading">
@@ -454,7 +468,7 @@ function HeroSection({
   );
 }
 
-function FleetSection({ cars: _cars, onPrimaryAction }: { cars: Car[]; onPrimaryAction: () => void }) {
+function FleetSection({ onBookCar }: { onBookCar: (carId: string) => void }) {
   const [activePage, setActivePage] = useState(0);
   const cardsPerPage = 3;
   const totalPages = Math.ceil(lineupShowcaseCars.length / cardsPerPage);
@@ -530,7 +544,7 @@ function FleetSection({ cars: _cars, onPrimaryAction }: { cars: Car[]; onPrimary
                 </div>
               </dl>
 
-              <button type="button" className="secondary-button wide" onClick={onPrimaryAction}>
+              <button type="button" className="secondary-button wide" onClick={() => onBookCar(car.id)}>
                 Book Now
               </button>
             </div>
@@ -1076,6 +1090,7 @@ export default function App() {
     message: null,
     error: null
   });
+  const bookingCars = getBookingCars(cars);
 
   useEffect(() => {
     void fetchFleet().then(setCars).catch(() => setCars(fallbackFleet));
@@ -1219,6 +1234,18 @@ export default function App() {
     }));
   }
 
+  function handleBookingOpen(carId?: string) {
+    if (carId) {
+      setForm((current) => ({
+        ...current,
+        carId
+      }));
+    }
+
+    setSubmitState({ loading: false, message: null, error: null });
+    openModal('booking');
+  }
+
   async function handleSubmit() {
     const requiredFields: Array<keyof InquiryFormState> = [
       'fullName',
@@ -1273,8 +1300,8 @@ export default function App() {
         onHistoryClick={handleHistoryOpen}
       />
       <main>
-        <HeroSection cars={cars} form={form} onFieldChange={handleFieldChange} onPrimaryAction={() => openModal('booking')} />
-        <FleetSection cars={cars} onPrimaryAction={() => openModal('booking')} />
+        <HeroSection cars={bookingCars} form={form} onFieldChange={handleFieldChange} onPrimaryAction={() => handleBookingOpen()} />
+        <FleetSection onBookCar={handleBookingOpen} />
         <BenefitsSection />
         <BookingStepsSection />
         <FaqSection faqItems={faqItems} />
@@ -1299,7 +1326,7 @@ export default function App() {
 
       <Modal modalId="booking" activeModal={activeModal} title="Booking Flow" closeModal={closeModal} size="booking">
         <BookingOverlay
-          cars={cars}
+          cars={bookingCars}
           form={form}
           submitState={submitState}
           onFieldChange={handleFieldChange}

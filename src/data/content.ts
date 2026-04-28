@@ -28,10 +28,10 @@ export const fleet: Car[] = [
     accent: 'magenta',
     tagline: 'Superveloce Performance Tier',
     description: 'Carbon-heavy theatre with brutal acceleration and a night-run silhouette.',
-    imageSrc: ferrariSf90Image,
+    imageSrc: aventadorHero,
     imagePrompt:
-      'Silver luxury sports coupe parked in a dim city alley at dusk, premium car rental editorial shot, realistic reflections, moody cyan-magenta accents, wide crop, no people, no text',
-    imageLabel: 'Silver luxury sports coupe mockup',
+      'Lamborghini Aventador parked in a dim city alley at dusk, premium car rental editorial shot, realistic reflections, moody cyan-magenta accents, wide crop, no people, no text',
+    imageLabel: 'Lamborghini Aventador mockup',
     imageStyle: 'silver-coupe',
     performance: { acceleration: '2.8s', horsepower: '740 HP', topSpeed: '350 km/h' }
   },
