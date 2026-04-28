@@ -1,8 +1,8 @@
-import aventadorHero from '../../assets/Lamborghini Aventador.png';
-import ferrariSf90Image from '../../assets/Ferrari SF90.png';
-import maybachImage from '../../assets/Maybach.png';
-import bmwX5mImage from '../../assets/BMW X5M.png';
-import porscheGt2Image from '../../assets/Porshe GT2.png';
+import aventadorHero from '../../assets/Lamborghini Aventador.webp';
+import ferrariSf90Image from '../../assets/Ferrari SF90.webp';
+import maybachImage from '../../assets/Maybach.webp';
+import bmwX5mImage from '../../assets/BMW X5M.webp';
+import porscheGt2Image from '../../assets/Porshe GT2.webp';
 import type { Benefit, BookingRecord, BookingStep, Car, FaqItem, ProtectionPlan } from '../types';
 
 export const navLinks = [
